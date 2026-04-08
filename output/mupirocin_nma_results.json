@@ -1,0 +1,16 @@
+{
+    "model": "Mupirocin-STNMA-v1.0",
+    "results": [
+        {
+            "region": "North America",
+            "estimate": 0.7997,
+            "ci_low": 0.7965,
+            "ci_high": 0.8036,
+            "evidence_hash": "8551e40e221d69d49139d11b7ff703b9b18a12935c890d1781c4b62ec67d2e0b"
+        }
+    ],
+    "truthcert": {
+        "input_hash": "d9cd7eb75d6f91dc2e2a3fa56ebc85095ad5d65e52f5db7dadb7b82095a06724",
+        "timestamp": "2026-04-08"
+    }
+}

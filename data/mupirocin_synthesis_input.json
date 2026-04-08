@@ -1,0 +1,66 @@
+{
+    "rcts": [
+        {
+            "trial": "CLEAR",
+            "arm": "Mupirocin+CHG",
+            "n": 1063,
+            "events": 850,
+            "outcome": "decolonization",
+            "region": "North America",
+            "year": 2019
+        },
+        {
+            "trial": "CLEAR",
+            "arm": "Education",
+            "n": 1058,
+            "events": 420,
+            "outcome": "decolonization",
+            "region": "North America",
+            "year": 2019
+        },
+        {
+            "trial": "REDUCE MRSA",
+            "arm": "Universal",
+            "n": 74256,
+            "events": 1200,
+            "outcome": "MRSA BSI",
+            "region": "North America",
+            "year": 2013
+        },
+        {
+            "trial": "NICU Phase 2",
+            "arm": "Mupirocin",
+            "n": 77,
+            "events": 68,
+            "outcome": "decolonization",
+            "region": "North America",
+            "year": 2021
+        },
+        {
+            "trial": "NICU Phase 2",
+            "arm": "Placebo",
+            "n": 78,
+            "events": 20,
+            "outcome": "decolonization",
+            "region": "North America",
+            "year": 2021
+        }
+    ],
+    "burden": [
+        {
+            "location": "North America",
+            "burden_score": 0.05,
+            "year": 2020
+        },
+        {
+            "location": "Europe",
+            "burden_score": 0.08,
+            "year": 2020
+        },
+        {
+            "location": "Asia",
+            "burden_score": 0.15,
+            "year": 2020
+        }
+    ]
+}

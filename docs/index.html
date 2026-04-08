@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mupirocin-decolonization | S. aureus ST-NMA</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #10b981;
+            --background: #f8fafc;
+            --text: #1e293b;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            margin: 0;
+            padding: 40px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+        h1 { font-weight: 800; color: var(--primary); margin-bottom: 8px; }
+        .subtitle { color: #64748b; font-size: 1.1rem; margin-bottom: 32px; }
+        .chart-container { margin: 40px 0; height: 300px; }
+        .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; font-size: 0.9rem; color: #94a3b8; }
+        .truthcert { font-family: monospace; background: #f1f5f9; padding: 12px; border-radius: 6px; font-size: 0.8rem; overflow-wrap: break-word; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>mupirocin-decolonization</h1>
+        <p class="subtitle">Bayesian ST-NMA of S. aureus Decolonization Efficacy</p>
+        
+        <p>This dashboard presents regional decolonization efficacy estimates synthesized from the CLEAR, REDUCE MRSA, and NICU trials using a Bayesian Spatio-Temporal Network Meta-Analysis.</p>
+
+        <div class="chart-container">
+            <canvas id="nmaChart"></canvas>
+        </div>
+
+        <div class="truthcert">
+            <strong>TRUTHCERT Integrity Hash:</strong><br>
+            d9cd7eb75d6f91dc2e2a3fa56ebc85095ad5d65e52f5db7dadb7b82095a06724
+        </div>
+
+        <div class="footer">
+            &copy; 2026 E156 Meta-Analysis Pipeline. Data sources: ClinicalTrials.gov, Figshare, Zenodo, PMC.
+        </div>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('nmaChart').getContext('2d');
+        const chartData = {
+            labels: ['North America'],
+            datasets: [{
+                label: 'Decolonization Rate',
+                data: [0.800],
+                backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                borderColor: 'rgba(16, 185, 129, 1)',
+                borderWidth: 2,
+                pointRadius: 5,
+                pointBackgroundColor: 'rgba(16, 185, 129, 1)'
+            }]
+        };
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: chartData,
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 1.0,
+                        title: { display: true, text: 'Decolonization Proportion' }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    title: { display: true, text: 'Regional Decolonization Efficacy' }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
