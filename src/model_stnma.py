@@ -20,10 +20,24 @@ def run_mupirocin_stnma(input_data):
     rcts = pd.DataFrame(input_data['rcts'])
     # Filter for decolonization outcome
     df = rcts[rcts['outcome'] == 'decolonization'].copy()
+
+    # Fail closed on empty pool rather than emitting a confusing PyMC shape error
+    # downstream (empty arms/regions would make the model degenerate).
+    if df.empty:
+        raise ValueError(
+            "No rows with outcome == 'decolonization' in input; cannot fit ST-NMA."
+        )
     
-    # Preprocessing
+    # Preprocessing.
+    # The likelihood below observes the LOGIT of the decolonization rate, so the
+    # observation noise must also be on the logit scale. Clamp p away from 0/1 to
+    # avoid division-by-zero / log(0) for boundary arms, then convert the
+    # proportion-scale variance p(1-p)/n to the logit scale via the delta method:
+    #   Var(logit p) = (d logit/dp)^2 * Var(p) = 1 / (n * p * (1 - p)).
     df['p'] = df['events'] / df['n']
-    df['se'] = np.sqrt(df['p'] * (1 - df['p']) / df['n'])
+    p_clamped = df['p'].clip(lower=1e-10, upper=1 - 1e-10)
+    df['logit'] = np.log(p_clamped / (1 - p_clamped))
+    df['se'] = np.sqrt(1.0 / (df['n'] * p_clamped * (1 - p_clamped)))
     
     # Map regions to indices
     regions = sorted(df['region'].unique())
@@ -45,14 +59,18 @@ def run_mupirocin_stnma(input_data):
         
         # Likelihood
         p_logit = mu_arm[df['a_idx'].values] + delta_region[df['r_idx'].values]
-        pm.Normal("obs", mu=p_logit, sigma=df['se'].values, observed=np.log(df['p'].values / (1 - df['p'].values)))
+        pm.Normal("obs", mu=p_logit, sigma=df['se'].values, observed=df['logit'].values)
         
         # Sampling
         print("Starting MCMC sampling...")
         trace = pm.sample(200, tune=100, cores=1, chains=1, random_seed=42, progressbar=False)
     
-    # Summary
-    summary = az.summary(trace, hdi_prob=0.95)
+    # Summary. arviz renamed the credible-mass kwarg from `hdi_prob` to
+    # `ci_prob`; support both so the pipeline runs across arviz versions.
+    try:
+        summary = az.summary(trace, hdi_prob=0.95)
+    except TypeError:
+        summary = az.summary(trace, ci_prob=0.95)
     
     # Regional Estimates for Mupirocin arm
     # Note: Using Mupirocin+CHG or Mupirocin as reference

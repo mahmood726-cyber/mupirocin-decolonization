@@ -23,7 +23,7 @@ Before you use any tool or make changes, briefly say what you're about to do, th
 - Evidence locator + hash + transformation steps + validator outcomes.
 
 ## E156 Workbook Protection
-- `C:\Users\user\OneDrive - NHS\Desktop\rewrite-workbook.txt`: Always keep `CURRENT BODY` up to date.
+- In the E156 `rewrite-workbook.txt` (path configured locally; do not hardcode): always keep `CURRENT BODY` up to date.
 - **NEVER** modify or delete `YOUR REWRITE` sections.
 
 ## Quality Loop
