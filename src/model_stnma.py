@@ -28,6 +28,18 @@ def run_mupirocin_stnma(input_data):
             "No rows with outcome == 'decolonization' in input; cannot fit ST-NMA."
         )
     
+    # Validate cell counts BEFORE computing p. The p-clamp below only guards the
+    # 0/1 boundary; it does NOT protect against n <= 0 (p = NaN/inf, se = NaN/inf)
+    # or events > n (p > 1, silently clamped to ~1 with a garbage se). Both cases
+    # would flow unguarded into the pm.Normal likelihood sigma and produce a PyMC
+    # error or a meaningless posterior, so fail closed with a clear message.
+    bad = df[(df['n'] <= 0) | (df['events'] < 0) | (df['events'] > df['n'])]
+    if not bad.empty:
+        raise ValueError(
+            "Invalid arm cell(s): each row needs n > 0 and 0 <= events <= n. "
+            f"Offending rows: {bad[['arm', 'events', 'n']].to_dict('records')}"
+        )
+
     # Preprocessing.
     # The likelihood below observes the LOGIT of the decolonization rate, so the
     # observation noise must also be on the logit scale. Clamp p away from 0/1 to
@@ -93,7 +105,10 @@ def run_mupirocin_stnma(input_data):
     return results, summary.to_dict(), generate_truthcert_hash(input_data)
 
 def main():
-    input_path = "mupirocin-decolonization/data/mupirocin_synthesis_input.json"
+    # Resolve paths relative to this file so the script works regardless of the
+    # current working directory (previously assumed cwd == the repo's parent).
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    input_path = os.path.join(base_dir, "data", "mupirocin_synthesis_input.json")
     if not os.path.exists(input_path):
         print(f"Input file not found: {input_path}")
         return
@@ -112,7 +127,7 @@ def main():
         }
     }
     
-    output_path = "mupirocin-decolonization/output/mupirocin_nma_results.json"
+    output_path = os.path.join(base_dir, "output", "mupirocin_nma_results.json")
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, 'w') as f:
         json.dump(output, f, indent=4)

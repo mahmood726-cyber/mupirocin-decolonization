@@ -38,7 +38,11 @@ def main():
         "burden": burden
     }
     
-    output_path = "mupirocin-decolonization/data/mupirocin_synthesis_input.json"
+    # Resolve the output path relative to this file so ingestion writes to the
+    # repo's own data/ dir regardless of the current working directory
+    # (previously assumed cwd == the repo's parent, creating a nested folder).
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    output_path = os.path.join(base_dir, "data", "mupirocin_synthesis_input.json")
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, 'w') as f:
         json.dump(data, f, indent=4)

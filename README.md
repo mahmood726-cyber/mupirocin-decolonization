@@ -17,6 +17,22 @@ This repository implements a **Spatio-Temporal Network Meta-Analysis (ST-NMA)** 
 ## Deployment
 Interactive dashboard hosted via GitHub Pages at `mahmood726-cyber.github.io/mupirocin-decolonization/`.
 
+## Installation
+
+Dependencies are pinned in `requirements.txt` (the versions the bundled `output/` results were generated with):
+
+```
+python -m pip install -r requirements.txt
+```
+
+Then run the pipeline from the repo root:
+
+```
+python src/ingest_data.py    # regenerate data/mupirocin_synthesis_input.json
+python src/model_stnma.py     # fit the ST-NMA and write output/
+python -m pytest -q           # run the test suite
+```
+
 ## Methods
 
 The pooling model in `src/model_stnma.py` is a Bayesian arm-based hierarchical logistic NMA implemented in PyMC. Trial arms are mapped to intervention indices; observed decolonization probabilities are modelled on the logit scale with a per-intervention mean `mu_arm ~ Normal(0, 2)` and a per-region random effect `delta_region ~ Normal(0, tau_region)` with `tau_region ~ HalfNormal(0.5)`. Output is the posterior decolonization probability per region for the Mupirocin+CHG arm with 2.5%/97.5% credible bounds.
@@ -27,7 +43,7 @@ A SHA-256 `evidence_hash` is recorded per regional output. In the current implem
 
 ## Limitations
 
-- **Single-region trial coverage.** All three bundled trials are North America. Regional estimates for Europe, Asia, and Africa are produced from the model but are entirely prior-driven (`delta_region` has no likelihood contribution outside North America) — these should be read as "what the prior says about a region we have no evidence on", not as data-driven decolonization estimates.
+- **Single-region trial coverage.** All bundled decolonization arms are North America. `reg_map` is built from `sorted(df['region'].unique())` *after* the `outcome == "decolonization"` filter, so the results loop only ever emits regions that actually have decolonization data — currently just North America (see the single row in `output/mupirocin_nma_results.json`). **No rows are produced for Europe, Asia, or Africa at all**; they are absent from the output, not prior-only estimates. To obtain prior-driven estimates for those regions you would have to add them to `reg_map` deliberately and ingest at least one non-NA trial before claiming spatial variation.
 - **MCMC settings are smoke-test, not production.** `pm.sample(200, tune=100, cores=1, chains=1)` is sufficient to validate the pipeline runs; it is **not** sufficient for trustworthy posterior summaries. With a single chain, Rhat cannot be computed and ESS will be far below the conventional ≥400-per-parameter threshold. Production runs should use at least 4 chains × 2000 post-warmup samples and verify `summary.r_hat < 1.01` and `summary.ess_bulk ≥ 400` before any reporting.
 - **TruthCert hash is region-name only.** The `evidence_hash` field in each result row is `sha256(region_name)`. It does not capture trial cells, model code, or PyMC version. For real proof-carrying numbers, hash the (input JSON + model.py + library versions) tuple.
 - **Outcome heterogeneity is hard-filtered, not modelled.** REDUCE MRSA's MRSA-BSI arm is dropped by the `outcome == "decolonization"` filter. Mixing surrogate / downstream outcomes (decolonization → infection) is not currently modelled; users wanting decolonization-as-mediator analyses need to extend the model.

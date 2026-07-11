@@ -1,0 +1,8 @@
+# Pinned to the versions used to generate the bundled output/ results.
+# GEMINI.md mandates determinism / pinned versions; install with:
+#   python -m pip install -r requirements.txt
+numpy==2.4.6
+pandas==2.3.3
+pymc==6.0.1
+arviz==1.1.0
+pytest==9.0.3
